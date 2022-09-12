@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Ecommerce.ShoppingCartAPI.Test
 {
-    public class Tests
+    public class ShoppingCartControllerTest
     {
         [SetUp]
         public void Setup()
@@ -10,7 +10,7 @@ namespace Ecommerce.ShoppingCartAPI.Test
         }
 
         [Test]
-        public void Test1()
+        public void AddItemToNonExistingShoppingCart()
         {
             Assert.Pass();
         }

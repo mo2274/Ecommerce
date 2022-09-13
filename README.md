@@ -8,6 +8,5 @@ A Simple Ecommerce Application.
 
 
 # Used Design Pattern:
-  1. clone the project.
-  2. from the package manager console update-database.
-  3. run the project.
+  1. API Gateway.
+  2. Asynchronous Messaging.

@@ -4,7 +4,7 @@ A Simple Ecommerce Application.
 
 # Microservice Architecture
 
-![alt text](https://github.com/mo2274/Ecommerce/blob/master/Architecture-Diagram.png?raw=true)
+![alt text](https://github.com/mo2274/Ecommerce/blob/master/Architecture-Diagram.PNG?raw=true)
 
 
 # To run the project:

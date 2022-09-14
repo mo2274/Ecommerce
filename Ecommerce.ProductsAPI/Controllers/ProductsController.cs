@@ -34,7 +34,7 @@ namespace Ecommerce.ProductsAPI.Controllers
             return Ok(product);
         }
 
-        [HttpPost]
+        [HttpPost("cart")]
         [Authorize]
         public async Task AddProductToShoppingCart(int productId)
         {

@@ -1,5 +1,6 @@
 ﻿using Ecommerce.ShoppingCartAPI.Data;
 using Ecommerce.ShoppingCartAPI.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.ShoppingCartAPI.Repositories
 {
@@ -14,7 +15,8 @@ namespace Ecommerce.ShoppingCartAPI.Repositories
         public async Task AddItemToCartAsync(string userName, Item item)
         {
             var shoppingCart = context.ShoppingCarts
-                .Where(s => s.Equals(userName) && s.IsOpened).FirstOrDefault();
+                .Include(s => s.Items)
+                .Where(s => s.UserName.Equals(userName) && s.IsOpened).FirstOrDefault();
 
             if (shoppingCart == null)
             {
@@ -23,7 +25,7 @@ namespace Ecommerce.ShoppingCartAPI.Repositories
             }
 
             if (CartHasItem(shoppingCart, item.ProductName))
-                UpdateItemCount(shoppingCart, item.ProductName);
+                UpdateItemCount(shoppingCart, item.ProductName, item.Count);
             else
                 AddItem(shoppingCart, item);
 
@@ -36,10 +38,10 @@ namespace Ecommerce.ShoppingCartAPI.Repositories
             shoppingCart.Items.Add(item);
         }
 
-        private void UpdateItemCount(ShoppingCart shoppingCart, string productName)
+        private void UpdateItemCount(ShoppingCart shoppingCart, string productName, int count)
         {
             var item = shoppingCart.Items.Where(i => i.ProductName == productName).First();
-            item.Count++;
+            item.Count += count;
         }
 
         private bool CartHasItem(ShoppingCart shoppingCart, string productName)

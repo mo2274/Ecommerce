@@ -10,8 +10,10 @@ A Simple Ecommerce Application.
 # Used Design Pattern:
 API Gateway.
 
-  API Gateway also acts as the entry point for all the microservices and creates fine-grained APIs’ for different types of clients.
+  API Gateway acts as the entry point for all the microservices and creates fine-grained APIs’ for different types of clients.
   With the help of the API Gateway design pattern, the API gateways can convert the protocol request from one type to other. Similarly, it can also offload the             authentication/authorization responsibility of the microservice.
   
 Asynchronous Messaging.
-  
+   
+   In synchronous messaging the client gets blocked or has to wait for a long time, But, if you do not want the consumer, to wait for a long time, then you can opt for the Asynchronous Messaging. In this type of microservices design pattern, all the services can communicate with each other, but they do not have to communicate with each other sequentially. and we can achieve that using message queueing system like RabbitMQ.
+   

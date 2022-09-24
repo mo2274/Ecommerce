@@ -1,8 +1,10 @@
 ﻿using Ecommerce.ProductsAPI.Data.Entities.Dtos;
 using Ecommerce.ProductsAPI.RabbitMQ;
 using Ecommerce.ProductsAPI.Repositories;
+using Ecommerce.ProductsAPI.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace Ecommerce.ProductsAPI.Controllers
 {
@@ -40,7 +42,12 @@ namespace Ecommerce.ProductsAPI.Controllers
         {
             var userName = User.Identity.Name;
             var product = await productRepository.GetProductByIdAsync(productId);
-            var message = $"{userName}|{product.Name}|{product.Price}";
+            var message = JsonSerializer.Serialize(new ItemModel()
+            {
+                UserName = userName,
+                ProductName = product.Name,
+                Price = product.Price
+            }); ;
             messageProducer.SendMessage(message);
         }
     }

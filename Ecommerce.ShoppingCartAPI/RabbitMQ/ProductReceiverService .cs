@@ -1,8 +1,10 @@
 ﻿using Ecommerce.ShoppingCartAPI.Data.Entities;
 using Ecommerce.ShoppingCartAPI.Repositories;
+using Ecommerce.ShoppingCartAPI.ViewModels;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
+using System.Text.Json;
 
 namespace Ecommerce.ShoppingCartAPI.RabbitMQ
 {
@@ -26,51 +28,53 @@ namespace Ecommerce.ShoppingCartAPI.RabbitMQ
 
             _channel.QueueDeclare(
                 queue: "Products",
-                durable: false,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null);
+                exclusive: false, autoDelete: false);
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (stoppingToken.IsCancellationRequested)
+            try
             {
-                _channel.Dispose();
-                _connection.Dispose();
-                return Task.CompletedTask;
+                if (stoppingToken.IsCancellationRequested)
+                {
+                    _channel.Dispose();
+                    _connection.Dispose();
+                    return Task.CompletedTask;
+                }
+
+                var consumer = new EventingBasicConsumer(_channel);
+
+                consumer.Received += (model, ea) =>
+                {
+                    var body = ea.Body.ToArray();
+                    var message = Encoding.UTF8.GetString(body);
+                    var itemModel = JsonSerializer.Deserialize<ItemModel>(message);
+
+                    Task.Run(async () =>
+                    {
+
+                        var item = new Item();
+                        var userName = itemModel.UserName;
+                        item.ProductName = itemModel.ProductName;
+                        item.Price = itemModel.Price;
+                        item.Count = itemModel.Count;
+
+                        using (var scope = _sp.CreateScope())
+                        {
+                            var db = scope.ServiceProvider.GetRequiredService<IShoppingCartRepository>();
+                            await db.AddItemToCartAsync(userName, item);
+                        }
+                    });
+                };
+
+                _channel.BasicConsume(queue: "Products", autoAck: true, consumer: consumer);
+            }
+            catch (Exception e)
+            {
+
+                throw;
             }
 
-            var consumer = new EventingBasicConsumer(_channel);
-
-            consumer.Received += (model, ea) =>
-            {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-
-                Task.Run(async () =>
-                {
-                    var chunks = message.Split("|");
-
-                    var item = new Item();
-                    var userName = chunks[0];
-
-                    if (chunks.Length == 3)
-                    {
-                        item.ProductName = chunks[1];
-                        item.Price = Convert.ToDouble(chunks[2]);
-                        item.Count = 1;
-                    }
-
-                    using (var scope = _sp.CreateScope())
-                    {
-                        var db = scope.ServiceProvider.GetRequiredService<IShoppingCartRepository>();
-                        await db.AddItemToCartAsync(userName, item);
-                    }
-                });
-            };
-
-            _channel.BasicConsume(queue: "Products", autoAck: true, consumer: consumer);
 
             return Task.CompletedTask;
         }

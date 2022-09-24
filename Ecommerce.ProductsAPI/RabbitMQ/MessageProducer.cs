@@ -16,7 +16,7 @@ namespace Ecommerce.ProductsAPI.RabbitMQ
             var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
 
-            channel.QueueDeclare("Products", exclusive: false);
+            channel.QueueDeclare("Products", exclusive: false, autoDelete: false);
 
             var json = JsonConvert.SerializeObject(message);
             var body = Encoding.UTF8.GetBytes(json);

@@ -2,7 +2,6 @@
 using Ecommerce.ProductsAPI.RabbitMQ;
 using Ecommerce.ProductsAPI.Repositories;
 using Ecommerce.ProductsAPI.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -37,17 +36,17 @@ namespace Ecommerce.ProductsAPI.Controllers
         }
 
         [HttpPost("cart")]
-        [Authorize]
         public async Task AddProductToShoppingCart(int productId)
         {
-            var userName = User.Identity.Name;
+            //var userName = User.Identity.Name;
             var product = await productRepository.GetProductByIdAsync(productId);
             var message = JsonSerializer.Serialize(new ItemModel()
             {
-                UserName = userName,
+                UserName = "mohamed",
                 ProductName = product.Name,
-                Price = product.Price
-            }); ;
+                Price = product.Price,
+                Count = 7
+            });
             messageProducer.SendMessage(message);
         }
     }

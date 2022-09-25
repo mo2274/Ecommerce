@@ -1,10 +1,11 @@
 ﻿using Ecommerce.ShoppingCartAPI.Data.Entities;
 using Ecommerce.ShoppingCartAPI.Repositories;
 using Ecommerce.ShoppingCartAPI.ViewModels;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
-using System.Text.Json;
 
 namespace Ecommerce.ShoppingCartAPI.RabbitMQ
 {
@@ -48,7 +49,9 @@ namespace Ecommerce.ShoppingCartAPI.RabbitMQ
                 {
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
-                    var itemModel = JsonSerializer.Deserialize<ItemModel>(message);
+                    message = message.Substring(1, message.Length - 2);
+                    message = message.Replace(@"\", string.Empty); ;
+                    var itemModel = JsonConvert.DeserializeObject<ItemModel>(message);
 
                     Task.Run(async () =>
                     {
